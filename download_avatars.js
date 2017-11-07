@@ -24,9 +24,13 @@ function getRepoContributors(repoOwner, repoName, cb) {
 
 getRepoContributors(args[0], args[1], function(err, result) {
   // console.log("Errors:", err);
+  if (args.length < 2) {
+    console.log("Invalid number of required inputs");
+    return;
+  }
   for (var i = 0; i < result.length; i++) {
     downloadImageByURL(result[i].avatar_url, `avatars/${result[i].login}.jpg`);
-    // console.log(`Saved the avatar for ${result[i].login}`)
+    console.log(`Saved the avatar for ${result[i].login}`)
   }
 });
 
