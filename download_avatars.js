@@ -17,20 +17,22 @@ function getRepoContributors(repoOwner, repoName, cb) {
 
 
   request(options, function(err, res, body) {
-    var resultsJSON = JSON.parse(body);
-    cb(err, resultsJSON);
+    var results = JSON.parse(body);
+    cb(err, results);
   });
 }
 
 getRepoContributors(args[0], args[1], function(err, result) {
-  // console.log("Errors:", err);
   if (args.length < 2) {
     console.log("Invalid number of required inputs");
     return;
   }
+  var fileExt = '';
   for (var i = 0; i < result.length; i++) {
     downloadImageByURL(result[i].avatar_url, `avatars/${result[i].login}.jpg`);
-    console.log(`Saved the avatar for ${result[i].login}`)
+    // Avatars are saved on the server as either .jpg OR .png, can't figure out how to determine what they are to save them as the proper type so I decided its better to hard code in .jpg as the assignment requires a file extension in the filename.
+    // Mac OS doesn't care, it will display images that have the incorrect file extension, Ubuntu however will throw up an error if you try to load a .png that has been saved as a .jpg
+    // Don't know if this was meant to be in the scope of the assignment or if I was completely overthinking the requirements
   }
 });
 
@@ -39,8 +41,5 @@ function downloadImageByURL(url, filePath) {
          .on('error', function (err) {
             throw err;
           })
-         // .on('response', function (response) {
-         //    console.log(response.statusCode, response.statusMessage, response.headers['content-type']);
-         //  })
          .pipe(fs.createWriteStream(filePath));
 }
