@@ -27,7 +27,6 @@ getRepoContributors(args[0], args[1], function(err, result) {
     console.log("Invalid number of required inputs");
     return;
   }
-  var fileExt = '';
   for (var i = 0; i < result.length; i++) {
     downloadImageByURL(result[i].avatar_url, `avatars/${result[i].login}.jpg`);
     // Avatars are saved on the server as either .jpg OR .png, can't figure out how to determine what they are to save them as the proper type so I decided its better to hard code in .jpg as the assignment requires a file extension in the filename.
