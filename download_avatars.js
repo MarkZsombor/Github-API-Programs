@@ -7,6 +7,12 @@ var args = process.argv.slice(2);
 
 console.log('Welcome to the GitHub Avatar Downloader!');
 
+function checkENV (token) {
+  if (process.env.GITHUB_API_TOKEN.length === 0) {
+    console.log('No GitHub API Token detected in the .env file');
+  }
+}
+
 function ensureDirectoryExistence(filePath) {
   var dirname = path.dirname(filePath);
   if (fs.existsSync(dirname)) {
@@ -17,6 +23,7 @@ function ensureDirectoryExistence(filePath) {
 }
 
 function getRepoContributors(repoOwner, repoName, cb) {
+  checkENV();
   var options = {
     url: "https://api.github.com/repos/" + repoOwner + "/" + repoName + "/contributors",
     headers: {
@@ -53,3 +60,20 @@ function downloadImageByURL(url, filePath) {
           })
          .pipe(fs.createWriteStream(filePath));
 }
+
+
+// STRETCH GOALS:
+// the folder to store images to does not exist
+// added function so that it makes the folder
+
+// an incorrect number of arguments given to program (0, 1, 3, etc.)
+// now return a message telling the user what the correct inputs should be
+
+// the provided owner/repo does not exist
+
+// the .env file is missing
+
+// the .env file is missing information
+// Will throw an error message telling that no token was found.
+
+// the .env file contains incorrect credentials
