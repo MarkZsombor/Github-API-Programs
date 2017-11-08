@@ -1,9 +1,9 @@
 require('dotenv').config()
-var request = require('request');
-var fs = require('fs');
-var path = require('path');
+const request = require('request');
+const fs = require('fs');
+const path = require('path');
 
-var args = process.argv.slice(2);
+const args = process.argv.slice(2);
 
 console.log('Welcome to the GitHub Avatar Downloader!');
 
@@ -14,7 +14,7 @@ function checkENV (token) {
 }
 
 function ensureDirectoryExistence(filePath) {
-  var dirname = path.dirname(filePath);
+  let dirname = path.dirname(filePath);
   if (fs.existsSync(dirname)) {
     return true;
   }
@@ -24,7 +24,7 @@ function ensureDirectoryExistence(filePath) {
 
 function getRepoContributors(repoOwner, repoName, cb) {
   checkENV();
-  var options = {
+  let options = {
     url: "https://api.github.com/repos/" + repoOwner + "/" + repoName + "/contributors",
     headers: {
       'User-Agent': 'request',
@@ -34,7 +34,7 @@ function getRepoContributors(repoOwner, repoName, cb) {
 
 
   request(options, function(err, res, body) {
-    var results = JSON.parse(body);
+    let results = JSON.parse(body);
     cb(err, results);
   });
 }
@@ -44,7 +44,7 @@ getRepoContributors(args[0], args[1], function(err, result) {
     console.log("Invalid number of required inputs, please submit the repo-owner and repo-name only and in that order.");
     return;
   }
-  for (var i = 0; i < result.length; i++) {
+  for (let i = 0; i < result.length; i++) {
     downloadImageByURL(result[i].avatar_url, `avatars/${result[i].login}.jpg`);
     // Avatars are saved on the server as either .jpg OR .png, can't figure out how to determine which type they are to save them as the proper extension so I decided its better to hard code in .jpg as the assignment requires a file extension in the filename.
     // Mac OS doesn't care, it will display images that have the incorrect file extension, Ubuntu however will throw up an error if you try to load a .png that has been saved as a .jpg
