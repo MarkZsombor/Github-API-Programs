@@ -7,6 +7,7 @@ const args = process.argv.slice(2);
 
 console.log('Welcome to the GitHub Avatar Downloader!');
 
+// when the function is called it will check if the directory exists, if it doesnt it makes the directory
 function ensureDirectoryExistence(filePath) {
   let dirname = path.dirname(filePath);
   if (fs.existsSync(dirname)) {
@@ -42,29 +43,30 @@ function downloadImageByURL(url, filePath) {
 }
 
 getRepoContributors(args[0], args[1], function(err, result) {
+  // checks to ensure the correct number of arguements are inputed from the command line
   if (args.length !== 2) {
     console.log("Invalid number of required inputs, please submit the repo-owner and repo-name only and in that order.");
     return;
   }
+  // checks to see if the repo called exisits
   if (result.message === 'Not Found') {
     console.log('Incorrect repo information.');
     return;
   }
 
+  // checks to see if the .env exists, if it does it checks to see if it contains an api token, finally throws an error if the api token doesnt work
   if (fs.existsSync('.env')) {
-    if (result.message === 'Bad credentials') {
-      console.log('Incorrect GitHub API Token in the .env file.');
-      return;
-    } else if (process.env.GITHUB_API_TOKEN === undefined) {
+    if (process.env.GITHUB_API_TOKEN === undefined) {
       console.log('No GitHub token found in the .env');
+      return;
+    } else if (result.message === 'Bad credentials') {
+      console.log('Incorrect GitHub API Token in the .env file.');
       return;
     }
   } else {
     console.log('No .env file found');
     return;
   }
-
-  // console.log(result);
   for (let i = 0; i < result.length; i++) {
     downloadImageByURL(result[i].avatar_url, `avatars/${result[i].login}.jpg`);
     // Avatars are saved on the server as either .jpg OR .png, can't figure out how to determine which type they are to save them as the proper extension so I decided its better to hard code in .jpg as the assignment requires a file extension in the filename.
