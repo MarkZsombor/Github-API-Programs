@@ -7,12 +7,6 @@ const args = process.argv.slice(2);
 
 console.log('Welcome to the GitHub Avatar Downloader!');
 
-function checkENV (token) {
-  if (process.env.GITHUB_API_TOKEN.length === 0) {
-    console.log('No GitHub API Token detected in the .env file');
-  }
-}
-
 function ensureDirectoryExistence(filePath) {
   let dirname = path.dirname(filePath);
   if (fs.existsSync(dirname)) {
@@ -23,7 +17,6 @@ function ensureDirectoryExistence(filePath) {
 }
 
 function getRepoContributors(repoOwner, repoName, cb) {
-  checkENV();
   let options = {
     url: "https://api.github.com/repos/" + repoOwner + "/" + repoName + "/contributors",
     headers: {
@@ -39,19 +32,6 @@ function getRepoContributors(repoOwner, repoName, cb) {
   });
 }
 
-getRepoContributors(args[0], args[1], function(err, result) {
-  if (args.length !== 2) {
-    console.log("Invalid number of required inputs, please submit the repo-owner and repo-name only and in that order.");
-    return;
-  }
-  for (let i = 0; i < result.length; i++) {
-    downloadImageByURL(result[i].avatar_url, `avatars/${result[i].login}.jpg`);
-    // Avatars are saved on the server as either .jpg OR .png, can't figure out how to determine which type they are to save them as the proper extension so I decided its better to hard code in .jpg as the assignment requires a file extension in the filename.
-    // Mac OS doesn't care, it will display images that have the incorrect file extension, Ubuntu however will throw up an error if you try to load a .png that has been saved as a .jpg
-    // Don't know if this was meant to be in the scope of the assignment or if I was completely overthinking the requirements
-  }
-});
-
 function downloadImageByURL(url, filePath) {
   ensureDirectoryExistence(filePath);
   request.get(url)
@@ -60,6 +40,39 @@ function downloadImageByURL(url, filePath) {
           })
          .pipe(fs.createWriteStream(filePath));
 }
+
+getRepoContributors(args[0], args[1], function(err, result) {
+  if (args.length !== 2) {
+    console.log("Invalid number of required inputs, please submit the repo-owner and repo-name only and in that order.");
+    return;
+  }
+  if (result.message === 'Not Found') {
+    console.log('Incorrect repo information.');
+    return;
+  }
+
+  if (fs.existsSync('.env')) {
+    if (result.message === 'Bad credentials') {
+      console.log('Incorrect GitHub API Token in the .env file.');
+      return;
+    } else if (process.env.GITHUB_API_TOKEN === undefined) {
+      console.log('No GitHub token found in the .env');
+      return;
+    }
+  } else {
+    console.log('No .env file found');
+    return;
+  }
+
+  // console.log(result);
+  for (let i = 0; i < result.length; i++) {
+    downloadImageByURL(result[i].avatar_url, `avatars/${result[i].login}.jpg`);
+    // Avatars are saved on the server as either .jpg OR .png, can't figure out how to determine which type they are to save them as the proper extension so I decided its better to hard code in .jpg as the assignment requires a file extension in the filename.
+    // Mac OS doesn't care, it will display images that have the incorrect file extension, Ubuntu however will throw up an error if you try to load a .png that has been saved as a .jpg
+    // Don't know if this was meant to be in the scope of the assignment or if I was completely overthinking the requirements
+  }
+});
+
 
 
 // STRETCH GOALS:
@@ -70,10 +83,13 @@ function downloadImageByURL(url, filePath) {
 // now return a message telling the user what the correct inputs should be
 
 // the provided owner/repo does not exist
+// Will message that the repo information is incorrect
 
 // the .env file is missing
+// will throw message if no .env in host directory
 
 // the .env file is missing information
-// Will throw an error message telling that no token was found.
+// Will throw an error message if .env doesn't have a github token
 
 // the .env file contains incorrect credentials
+// with throw an error message if the token isn't good
