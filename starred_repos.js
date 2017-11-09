@@ -54,16 +54,12 @@ function getStarredRepos(userName, cb) {
 const allRepos = [];
 const repoCounter = {};
 
-function justLogInfo(something) {
-   console.log(something);
-}
 
 getRepoContributors(args[0], args[1], function(err, result) {
 
   for (let i = 0; i < result.length; i++) {
     userNames.push(result[i].login);
   }
-  // console.log(userNames);
   for (let i = 0; i < userNames.length; i++) {
     getStarredRepos(userNames[i], function(err, result) {
       for (let entry in result) {
