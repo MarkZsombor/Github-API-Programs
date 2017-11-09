@@ -54,34 +54,51 @@ function getStarredRepos(userName, cb) {
 const allRepos = [];
 const repoCounter = {};
 
+function objectToArray(obj) {
+  // This will take an object {a:b} and return an array of arrays [[a,b]]
+  return Object.keys(obj)
+     .map(function (key) {
+        return [key, obj[key]];
+      });
+
+}
+
 
 getRepoContributors(args[0], args[1], function(err, result) {
-
+  let counter = 0;
   for (let i = 0; i < result.length; i++) {
     userNames.push(result[i].login);
   }
   for (let i = 0; i < userNames.length; i++) {
-    getStarredRepos(userNames[i], function(err, result) {
-      for (let entry in result) {
-        let repoName = result[entry].full_name;
+    getStarredRepos(userNames[i], function(err2, result2) {
+      counter++;
+      for (let entry in result2) {
+        let repoName = result2[entry].full_name;
         allRepos.push(repoName);
       }
+      if (counter === userNames.length) {
+        sortAndPrintContributors(allRepos);
+      }
+      // console.log(counter, userNames.length);
     });
   }
-  setTimeout(function(){ // using the setTimeout is a complete hack at dealing with the async data stream and is absolutely the wrong with to do this. I'm a bad programmer and deserve to be punished. It does however work.
-    for (let j = 0; j < allRepos.length; j++) {
-        if(allRepos[j] in repoCounter) {
-          repoCounter[allRepos[j]]++;
+
+});
+
+
+function sortAndPrintContributors(contributors){
+    let repoCounter = {};
+    let arr = [];
+
+    for (let j = 0; j < contributors.length; j++) {
+        if(contributors[j] in repoCounter) {
+          repoCounter[contributors[j]]++;
         } else {
-          repoCounter[allRepos[j]] = 1;
+          repoCounter[contributors[j]] = 1;
         }
     }
 
-
-    var arr = Object.keys(repoCounter)
-      .map(function (key) {
-        return [key, repoCounter[key]];
-      });
+    arr = objectToArray(repoCounter);
 
     arr.sort(function(a, b){return b[1]-a[1]});
 
@@ -90,10 +107,5 @@ getRepoContributors(args[0], args[1], function(err, result) {
       let stars = arr[k][1];
       console.log(`[${stars} stars] ${arr[k][0]}`);
     }
-
-
-  }, 3000);
-});
-
-
+  }
 
